@@ -1,0 +1,290 @@
+CREATE TABLE employees
+(
+id CHAR(9),
+name VARCHAR(50),
+state VARCHAR(50),
+salary SMALLINT,
+company VARCHAR(20)
+);
+INSERT INTO employees VALUES(123456789,'John Walker','Florida',2500,'IBM');
+INSERT INTO employees VALUES(234567890,'Brad Pitt','Florida',1500,'APPLE');
+INSERT INTO employees VALUES(123456789,'Eddie Murphy','Texas',3000,'IBM');
+INSERT INTO employees VALUES(123456789,'Eddie Murphy','Virginia',1000,'GOOGLE');
+INSERT INTO employees VALUES(123456789,'Eddie Murphy','Texas',7000,'MICROSOFT');
+INSERT INTO employees VALUES(123456789,'Brad Pitt','Texas',1500,'GOOGLE');
+INSERT INTO employees VALUES(123456789,'Mark Stone','Pennsylvania',2500,'IBM');
+
+SELECT *FROM employees;
+
+CREATE TABLE companies
+(
+company_id CHAR(9),
+company VARCHAR(20),
+number_of_employees SMALLINT
+);
+INSERT INTO companies VALUES(100,  'IBM',12000);
+INSERT INTO companies VALUES(101,  'GOOGLE',18000);
+INSERT INTO companies VALUES(102,  'MICROSOFT',10000);
+INSERT INTO companies VALUES(103,  'APPLE',21000);
+SELECT *FROM companies;
+
+--Her bir comany icin comany, number_of_eemployees ve ortalama salary degerlerini bulun.
+SELECT company, number_of_employees,(SELECT AVG(salary) FROM employees
+									WHERE companies.company= employees.company)AS avg_salary_per_company
+									
+FROM companies;
+
+--Herbir company icin company_id, company, en yuksek ve en dusuk salary degerlerini bulun.
+SELECT company_id, company, (SELECT MAX (salary)FROM employees WHERE companies.company =employees.company),
+							(SELECT MIN (salary)FROM employees WHERE companies.company = employees.company)
+FROM companies;
+
+--LIKE Condition: Wildcard ile kullanilir.
+--1)% wildcard: Sıfır ya da daha fazla karakteri temsil eder.
+-- 'E'  ile baslayan employee 'name' degerlerini cagirin.
+--baslangic degerini bulmak icin % simgesi harfin sonrasına koyulur
+SELECT name
+FROM employees
+WHERE name LIKE 'E%';
+
+-- 'e'  ile biten employee 'name' degerlerini cagirin.
+--bitis degerini bulmak icin % simgesi harfin basina koyulur.
+SELECT name
+FROM employees
+WHERE name LIKE '%e';
+
+-- 'B'  ile baslayan, 't'  ile biten employee 'name' degerlerini cagirin.
+SELECT name
+FROM employees
+WHERE name LIKE 'B%t';
+
+--herhangi bir yerinde 'a' bulunan employee 'name ' degerini cagirin.
+
+SELECT name
+FROM employees
+WHERE name LIKE '%a%';
+
+--Herhangi bir yerinde 'e' veya 'r' bulunan employee 'name ' degerini cagirin.
+SELECT name
+FROM employees
+WHERE name LIKE '%k%r' OR name LIKE '%r%k%';
+
+--2) _ wildcard: Tek karakteri temsil eder.
+--İkinci karakteri 'e'  ve dorduncu karakteri 'n' olan 'state ' degerini cagirin.
+
+SELECT  state
+FROM employees
+WHERE state LIKE '_e_n%';
+
+--sondan ikinci karakteri 'i ' olan states degerini cagirin.
+SELECT  state
+FROM employees
+WHERE state LIKE '%i_';
+
+-- ikinci karakteri 'e' olan ve en az 6 karakteri bulunan state degerini cagirin
+SELECT  state
+FROM employees
+WHERE state LIKE '_e____%';
+
+--ikinci karakterinden sonra herhangi bir yerinde 'i' bulunan 'state' degerini cagirin
+SELECT  state
+FROM employees
+WHERE state LIKE '__%i%';
+
+CREATE TABLE words
+(
+word_id CHAR(10) UNIQUE,
+	word VARCHAR(50)NOT NULL,
+	number_of_letters SMALLINT
+);
+
+INSERT INTO words VALUES (1001,'hot',3);
+INSERT INTO words VALUES (1002,'hat',3);
+INSERT INTO words VALUES (1003,'hit',3);
+INSERT INTO words VALUES (1004,'hbt',3);
+INSERT INTO words VALUES (1005,'hct',3);
+INSERT INTO words VALUES (1006,'adem',6);
+INSERT INTO words VALUES (1007,'selena',4);
+INSERT INTO words VALUES (1008,'yusuf',3);
+
+
+
+--NOT LINE Condition
+
+--Herhangi bir yerinde 'h' bulunmayan 'word' degerlerini cagirin.
+
+SELECT word
+FROM words
+WHERE word NOT LIKE '%h%';
+
+--'t' veya 'f' ile bitmeyen 'word' degerlerini cagirin.
+SELECT word
+FROM words
+WHERE word NOT LIKE '%t' AND word NOT LIKE '%f';
+
+-- Herhangi bir karakterle baslayip 'a' veya 'e' ile devam etmeyen 'word' degerini yazdirin
+SELECT word
+FROM words
+WHERE word NOT LIKE '_a%'AND word NOT LIKE '_e%';
+
+
+--REGULAR EXPRESSİON CONDITION:
+--ilk karakteri 'h', son karakteri 't' ve ikinci karakteri 'o' , 'a' veya 'i' olan 'word' degerlerini cagirin.
+--1. Yol: LIKE kullanarak--> tekrar sebebiyle tavsiye edilmez.
+SELECT word
+FROM words
+WHERE word LIKE 'ho%t' OR word LIKE 'ha%t' OR word LIKE 'hi%t';
+
+--2. yol: Regex kullanarak
+SELECT word
+FROM words
+WHERE word ~'h[oai](.*)t';
+
+--ilk karakteri 'h', son karakteri 't' ve ikinci karakteri 'a' dan 'e' ye herhangi bir karakter olan 'word' degerlerini cagirin.
+
+SELECT word
+FROM words
+WHERE word ~'h[a-e](.*)t'; -- [a-e] a,b,c,d,e anlamina gelir
+
+--
+ilk degeri 's','a' veya y olan word degerini yaziniz
+
+SELECT word
+FROM words
+WHERE word ~'^[say](.*)';
+
+--son karakteri 'm','a'veya 'f' olan "word" degerlerini cagirin
+SELECT word
+FROM words
+WHERE word ~'[maf]$';--(.*) istege bagli,
+
+--ilk karakteri 's' ve son karakteri 'a' olan bir "word "degeri cagirin.
+SELECT word
+FROM words
+WHERE word ~'s(.*)a';--(.*) ifadesi 0 yada coklu karakterler icin kullanilir.
+
+--herhangi bir yerinde 'a' olan word degerini cagirin
+SELECT word
+FROM words
+WHERE word ~'a';
+
+--ilk karakteri 'd' den 't' ye olan, herhangi bir  karakter ile devam edip ucuncu karakteri 'l' olan word degerini cagirin.
+
+SELECT word
+FROM words
+WHERE word ~'^[d-t].[l]';
+
+--ilk karakteri 'd' den 't' ye olan, herhangi iki karakter ile devam edip dorduncu karakteri 'e' olan "word degerini cagirin.
+
+SELECT word
+FROM words
+WHERE word ~'^[d-t]..e';
+SELECT * FROM words;
+
+CREATE TABLE workers
+(
+id CHAR (9),
+name VARCHAR(50),
+state VARCHAR(50),
+salary SMALLINT,
+company VARCHAR(20)
+);
+INSERT INTO workers VALUES (123456789,'John Walker','Florida',2500,'IBM');
+INSERT INTO workers VALUES (234567890,'Brad Pitt','Florida',1500,'APPLE');
+INSERT INTO workers VALUES (345678901,'Eddie Murphy','Texas',3000,'IBM');
+INSERT INTO workers VALUES (456789012,'Eddie Murphy','Virginia',1000,'GOOGLE');
+INSERT INTO workers VALUES (567890123,'Eddie Murphy','Texas',7000,'MICROSOFT');
+INSERT INTO workers VALUES (456789012,'Brad Pitt','Texas',1500,'GOOGLE');
+INSERT INTO workers VALUES (123456718,'Mark Stone','Pennsylvania',2500,'IBM');
+
+--'E' ile baslayip ve 'y' ile biten "name" degerleri dısındaki "name" degerlerini cagirin.
+SELECT name
+FROM workers
+WHERE name ~'^[^E](.*)[^y]$';-- koseli parantez icine ^kullanirsaniz " 'den farkli" anlamina gelir
+
+--'E' ile baslayip ve 'y' ile biten "name"  degerlerini cagirin. (odev)
+
+--'J' , 'B YA DA 'E' ile baslayip ve 'r' yada 't' ile biten "name"  degerlerini cagirin.
+
+SELECT name
+FROM workers
+WHERE name ~'^[JBE](.*)[rt]$';
+
+--son karakteri 'r' yada 't' olan veya ilk karakteri 'J','B', yada 'E' olan "name " degerlerini cagirin
+SELECT name
+FROM workers
+WHERE name ~'^[JBE]';
+
+--son karakteri 'r' yada 't' olmayan ve ilk karakteri 'J','B', yada 'E' olmayan "name " degerlerini cagirin
+
+SELECT name
+FROM workers
+WHERE name ~'^[^JBE](.*)[^rt]$';
+
+--son karakteri 'r' yada 't' olmayan veya ilk karakteri 'J','B', yada 'E' olmayan "name " degerlerini cagirin
+SELECT name
+FROM workers
+WHERE name ~'^[^JBE]' OR name ~ '[^rt]$';
+
+--herhangi bir yerinde 'a' bulunan 'name' degerlerini cagirin.(odev)
+--herhangi bir yerinde 'a' yada 'k' bulunan 'name' degerlerini cagirin.
+
+SELECT name
+FROM workers
+WHERE name ~ '[ak]';
+
+--ilk harfi 'A' dan 'F' ye bir karakter olan ve ikinci harfi herhangi bir karakter olup ucuncu harfi 'a' olan 'name' degerini cagirin
+
+SELECT name
+FROM workers
+WHERE name ~ '^[A-F].a';
+
+--ilk harfi 'A' dan 'F' ye bir karakter olan ve ikinci ve ucuncu harfi herhangi bir karakter olup dorduncu harfi 'i olan 'name' degerlerini cagirin (odev)
+--ucuncu karakteri 'o' ya da 'x' olan state degerini cagiriniz
+SELECT state
+FROM workers
+WHERE state ~ '..[ox]';
+
+----ucuncu karakteri 'o' ya da 'x' olmayan state degerini cagiriniz
+
+SELECT state
+FROM workers
+WHERE state ~ '^..[^ox]';
+
+--Sondan ucuncu karakteri 'n' ya da 'x' olan state degerini cagiriniz odev
+
+--ORDER BY: Recordlari artan ya da azalan duzende siralamak iccin kullanilir.
+--ORDER BY sadece SELECT Statement ile kullanilir.
+
+--Recordlari artan duzende number_of_letters degerine gore sıralayin.
+SELECT * FROM workers;
+
+SELECT *
+FROM words
+ORDER BY number_of_letters; --ASC keywordu zorunlu degildir, cunku artan siralama varsayilan sıralama tipidir.
+
+--Recordlari azalan duzende "word" surumuna gore sıralayin
+
+SELECT *
+FROM words
+ORDER BY word DESC; --azalan siralamalarda DESC keywordunu yazmak zorunludur, 
+
+--NOT: sutun adi yerine sutun numarasi ile de siralama yapabiliriz.
+SELECT *
+FROM words
+ORDER BY 3 DESC; -- 3 number_of_letters yerine gecer 3. sutunu temsil eder.,
+
+
+
+SELECT *FROM words;
+
+
+
+
+
+
+
+
+
+
+
